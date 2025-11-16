@@ -1,3 +1,4 @@
+// This file demonstrates a command which uses delayed responses.
 const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {

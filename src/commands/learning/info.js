@@ -1,3 +1,4 @@
+// This file demonstrates a command with subcommands
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = new SlashCommandBuilder()

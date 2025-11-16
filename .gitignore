@@ -7,3 +7,4 @@ coverage/
 lcov.info
 src/assets/audio/
 src/assets/images/
+binaries/

@@ -1,4 +1,4 @@
-const gif = require('../../../src/commands/fun/gif');
+const gif = require('../../../src/commands/learning/gif');
 
 test('gif.execute replies with Pong!', async () => {
   const interaction = { reply: jest.fn().mockResolvedValue(undefined) };

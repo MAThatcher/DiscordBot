@@ -1,4 +1,4 @@
-const pingCommand = require('../../../src/commands/utility/ping');
+const pingCommand = require('../../../src/commands/learning/ping');
 
 beforeEach(() => {
     jest.useFakeTimers();

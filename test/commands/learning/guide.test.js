@@ -1,4 +1,4 @@
-const guide = require('../../../src/commands/utility/guide');
+const guide = require('../../../src/commands/learning/guide');
 
 test('guide.autocomplete responds with filtered query choices', async () => {
   const focused = { name: 'query', value: 'W' };

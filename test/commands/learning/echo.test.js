@@ -1,4 +1,4 @@
-const echo = require('../../../src/commands/utility/echo');
+const echo = require('../../../src/commands/learning/echo');
 
 test('echo.execute replies with provided input', async () => {
   const options = { getString: () => 'hello world', getBoolean: () => true };

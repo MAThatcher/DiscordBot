@@ -1,3 +1,4 @@
+// This file demonstrates a command with autocomplete options for searching documentation.
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {

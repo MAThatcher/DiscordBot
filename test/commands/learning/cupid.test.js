@@ -1,4 +1,4 @@
-const cupid = require('../../../src/commands/utility/cupid');
+const cupid = require('../../../src/commands/learning/cupid');
 
 beforeEach(() => {
   jest.useFakeTimers();

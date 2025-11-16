@@ -1,3 +1,5 @@
+// This file demonstrates a command that plays audio files from the bot's assets folder in a voice channel.
+// Can be used with the LLM once audio files are generated and placed in the assets folder.
 const fs = require('node:fs');
 const path = require('node:path');
 const { SlashCommandBuilder } = require('discord.js');
