@@ -23,12 +23,12 @@ module.exports = {
 				const now = Date.now();
 				const timestamps = cooldowns.get(command.data.name);
 				const defaultCooldownDuration = 1;
-				const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1_000;
+				const cooldownAmount = (command.cooldown ?? defaultCooldownDuration) * 1000;
 
 				if (timestamps.has(interaction.user.id)) {
 					const expirationTime = timestamps.get(interaction.user.id) + cooldownAmount;
 					if (now < expirationTime) {
-						const expiredTimestamp = Math.round(expirationTime / 1_000);
+						const expiredTimestamp = Math.round(expirationTime / 1000);
 						return interaction.reply({
 							content: `Please wait, you are on a cooldown for \`${command.data.name}\`. You can use it again <t:${expiredTimestamp}:R>.`,
 							flags: MessageFlags.Ephemeral,
