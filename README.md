@@ -1,6 +1,9 @@
-# DiscordBot
+# [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=DiscordBot)](https://sonarcloud.io/summary/new_code?id=DiscordBot) DiscordBot 
 
 A lightweight Discord bot built with `discord.js` (v14) and `@discordjs/voice`. This repository includes slash commands, event handlers, and tests (Jest).
+
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=DiscordBot&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=DiscordBot)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=DiscordBot&metric=coverage)](https://sonarcloud.io/summary/new_code?id=DiscordBot)
 
 ## Table of Contents
 - [Features](#features)
@@ -104,11 +107,11 @@ module.exports = {
 
 Key commands in the repo:
 
-- `ping` (`src/commands/utility/ping.js`): Replies with pong and latency info.
-- `play` (`src/commands/utility/play.js`): Joins the caller's voice channel and plays a selected MP3 from `src/assets/music/` (or `src/assets/audio/`). Cleans up when playback ends or on error.
-- `image` (`src/commands/utility/image.js`): Lists images from `src/assets/images/` and sends an image attachment (supports picking by filename or random selection).
+- `ping` (`src/commands/learning/ping.js`): Replies with pong and latency info.
+- `play` (`src/commands/llm/play.js`): Joins the caller's voice channel and plays a selected MP3 from `src/assets/audio/`. Cleans up when playback ends or on error.
+- `image` (`src/commands/llm/image.js`): Lists images from `src/assets/images/` and sends an image attachment (supports picking by filename or random selection).
 - `reload` (`src/commands/utility/reload.js`): Reloads a command module at runtime (development helper).
-- `echo`, `info`, `guide`, `user`, `server`, `cupid`, `gif` (various locations): Utility and fun commands—see each file under `src/commands/` for details.
+- `echo`, `info`, `guide`, `user`, `server`, `cupid`, `gif` (various locations)
 - `test` (channel-specific example) (`src/commands/learning/channel.js`): Example command that replies differently depending on `interaction.channelId`.
 
 To add a command: create a new `.js` file under `src/commands/<category>/`, export `data` and `execute`, then restart the bot so the new module is loaded.
