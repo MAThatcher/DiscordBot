@@ -107,9 +107,9 @@ module.exports = {
 
 Key commands in the repo:
 
-- `ping` (`src/commands/learning/ping.js`): Replies with pong and latency info.
-- `play` (`src/commands/llm/play.js`): Joins the caller's voice channel and plays a selected MP3 from `src/assets/audio/`. Cleans up when playback ends or on error.
-- `image` (`src/commands/llm/image.js`): Lists images from `src/assets/images/` and sends an image attachment (supports picking by filename or random selection).
+- `ping` (`src/commands/utility/ping.js`): Replies with pong and latency info.
+- `play` (`src/commands/utility/play.js`): Joins the caller's voice channel and plays a selected MP3 from `src/assets/music/` (or `src/assets/audio/`). Cleans up when playback ends or on error.
+- `image` (`src/commands/utility/image.js`): Lists images from `src/assets/images/` and sends an image attachment (supports picking by filename or random selection).
 - `reload` (`src/commands/utility/reload.js`): Reloads a command module at runtime (development helper).
 - `echo`, `info`, `guide`, `user`, `server`, `cupid`, `gif` (various locations)
 - `test` (channel-specific example) (`src/commands/learning/channel.js`): Example command that replies differently depending on `interaction.channelId`.
