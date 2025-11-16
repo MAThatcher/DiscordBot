@@ -1,4 +1,4 @@
-# DiscordBot [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=DiscordBot)](https://sonarcloud.io/summary/new_code?id=DiscordBot)
+# [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=DiscordBot)](https://sonarcloud.io/summary/new_code?id=DiscordBot) DiscordBot 
 
 A lightweight Discord bot built with `discord.js` (v14) and `@discordjs/voice`. This repository includes slash commands, event handlers, and tests (Jest).
 
