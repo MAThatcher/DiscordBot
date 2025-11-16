@@ -10,22 +10,52 @@ on:
 
 name: Main Workflow
 jobs:
-  sonarqube:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
     - name: use node.js
       uses: actions/setup-node@v3
       with:
         node-version: '22.15.0'
     - run: npm install
     - run: npm test
-    - name: SonarQube Scan SC
-      uses: SonarSource/sonarqube-scan-action@v6
+    - name: Upload coverage artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+
+  sonarcloud:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Download coverage artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
+    - name: SonarCloud Scan
+      uses: SonarSource/sonarcloud-github-action@v3
       env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_SC }}
+
+  sonarqube:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Download coverage artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: coverage-report
+        path: coverage/
     - name: SonarQube Scan
       uses: SonarSource/sonarqube-scan-action@v6
       env:
