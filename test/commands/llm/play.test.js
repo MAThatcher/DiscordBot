@@ -11,7 +11,7 @@ afterEach(() => {
 test('play.execute requires user to be in voice channel', async () => {
   const path = require('path');
   const realFs = jest.requireActual('node:fs');
-  // mock node:fs for the module so it sees a single song in assets/audio
+
   jest.doMock('node:fs', () => ({
     ...realFs,
     readdirSync: (p, ...rest) => (p.includes(path.join('src', 'assets', 'audio')) ? ['song.mp3'] : realFs.readdirSync(p, ...rest)),
@@ -20,7 +20,7 @@ test('play.execute requires user to be in voice channel', async () => {
     createReadStream: (p) => realFs.createReadStream ? realFs.createReadStream(p) : {},
   }));
 
-  const play = require('../../../src/commands/utility/play');
+  const play = require('../../../src/commands/llm/play');
   const options = { getString: () => 'song.mp3' };
   const interaction = { options, reply: jest.fn().mockResolvedValue(undefined), member: { voice: {} } };
 
@@ -40,7 +40,7 @@ test('play.execute replies when file does not exist', async () => {
     createReadStream: (p) => ({}),
   }));
 
-  const play = require('../../../src/commands/utility/play');
+  const play = require('../../../src/commands/llm/play');
   const options = { getString: () => 'missing.mp3' };
   const interaction = {
     options,
@@ -89,7 +89,7 @@ test('play.execute plays and cleans up on player error', async () => {
 
   jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
-  const play = require('../../../src/commands/utility/play');
+  const play = require('../../../src/commands/llm/play');
 
   const options = { getString: () => 'song.mp3' };
   const interaction = {
@@ -101,7 +101,7 @@ test('play.execute plays and cleans up on player error', async () => {
   await play.execute(interaction);
 
   expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: expect.stringContaining('Joining VC and playing') }));
-  // simulate player error
+
   captured['error'](new Error('boom'));
 
   expect(mockSubscription.unsubscribe).toHaveBeenCalled();
@@ -143,7 +143,7 @@ test('play.execute cleans up on idle', async () => {
 
   jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
-  const play = require('../../../src/commands/utility/play');
+  const play = require('../../../src/commands/llm/play');
 
   const options = { getString: () => 'song.mp3' };
   const interaction = {
@@ -154,7 +154,7 @@ test('play.execute cleans up on idle', async () => {
 
   await play.execute(interaction);
 
-  // simulate idle
+
   captured[AudioPlayerStatus.Idle]();
 
   expect(mockSubscription.unsubscribe).toHaveBeenCalled();

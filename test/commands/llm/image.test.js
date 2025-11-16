@@ -19,7 +19,7 @@ test('image.execute replies with an attachment when images exist', async () => {
     existsSync: (p) => (p.endsWith('img.jpg') ? true : realFs.existsSync(p)),
   }));
 
-  const image = require('../../../src/commands/utility/image');
+  const image = require('../../../src/commands/llm/image');
 
   const options = { getString: () => null };
   const interaction = { options, reply: jest.fn().mockResolvedValue(undefined) };

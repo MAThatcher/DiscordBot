@@ -1,3 +1,4 @@
+// This file demonstrates a command using server information.
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {

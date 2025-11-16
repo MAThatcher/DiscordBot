@@ -1,3 +1,4 @@
+// This command demonstrates a command using user information.
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {

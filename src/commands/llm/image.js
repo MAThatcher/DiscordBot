@@ -1,3 +1,5 @@
+// This file demonstrates a command that serves images from the bot's assets folder.
+// Can be implemented with our LLM once images are generated and placed in the assets folder.
 const fs = require('node:fs');
 const path = require('node:path');
 const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');

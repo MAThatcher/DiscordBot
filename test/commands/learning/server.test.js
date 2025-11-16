@@ -1,4 +1,4 @@
-const server = require('../../../src/commands/utility/server');
+const server = require('../../../src/commands/learning/server');
 
 test('server.execute replies with server info', async () => {
   const guild = { name: 'MyServer', memberCount: 42 };

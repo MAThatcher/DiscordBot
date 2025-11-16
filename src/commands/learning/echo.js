@@ -1,3 +1,4 @@
+// This file demonstrates the use of channel options and boolean ephemeral responses.
 const { SlashCommandBuilder, MessageFlags, ChannelType } = require('discord.js');
 
 const data = new SlashCommandBuilder()
@@ -7,7 +8,7 @@ const data = new SlashCommandBuilder()
 		option
 			.setName('input')
 			.setDescription('The input to echo back')
-			.setMaxLength(2_000),
+			.setMaxLength(2000),
 	)
 	.addChannelOption((option) =>
 		option

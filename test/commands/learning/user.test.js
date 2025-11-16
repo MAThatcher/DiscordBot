@@ -1,4 +1,4 @@
-const userCmd = require('../../../src/commands/utility/user');
+const userCmd = require('../../../src/commands/learning/user');
 
 test('user.execute replies with user info', async () => {
   const interaction = {

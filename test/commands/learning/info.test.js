@@ -1,4 +1,4 @@
-const info = require('../../../src/commands/utility/info');
+const info = require('../../../src/commands/learning/info');
 
 test('info.execute handles user subcommand', async () => {
   const user = { globalName: 'bob', id: '123' };

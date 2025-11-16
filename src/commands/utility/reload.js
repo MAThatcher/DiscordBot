@@ -1,3 +1,4 @@
+// This file defines a command to reload other commands dynamically.
 const { SlashCommandBuilder , PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
@@ -13,9 +14,9 @@ module.exports = {
         if (!command) {
             return interaction.reply(`There is no command with name \`${commandName}\`!`);
         }
-        delete require.cache[require.resolve(`./${command.data.name}.js`)];
+        delete require.cache[require.resolve(`../learning/${command.data.name}.js`)];
         try {
-            const newCommand = require(`./${command.data.name}.js`);
+            const newCommand = require(`../learning/${command.data.name}.js`);
             interaction.client.commands.set(newCommand.data.name, newCommand);
             await interaction.reply(`Command \`${newCommand.data.name}\` was reloaded!`);
         } catch (error) {

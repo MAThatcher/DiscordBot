@@ -1,3 +1,4 @@
+// This file demonstrates the use of command choices
 const { SlashCommandBuilder } = require('discord.js');
 
 const data = new SlashCommandBuilder()

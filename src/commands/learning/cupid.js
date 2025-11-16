@@ -1,3 +1,4 @@
+// This file demonstrates a command which uses delayed responses and random selection.
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
