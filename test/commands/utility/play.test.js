@@ -1,11 +1,25 @@
-const fs = require('node:fs');
-
 beforeEach(() => {
   jest.resetModules();
   jest.clearAllMocks();
 });
 
+afterEach(() => {
+  jest.restoreAllMocks();
+  jest.resetModules();
+});
+
 test('play.execute requires user to be in voice channel', async () => {
+  const path = require('path');
+  const realFs = jest.requireActual('node:fs');
+  // mock node:fs for the module so it sees a single song in assets/audio
+  jest.doMock('node:fs', () => ({
+    ...realFs,
+    readdirSync: (p, ...rest) => (p.includes(path.join('src', 'assets', 'audio')) ? ['song.mp3'] : realFs.readdirSync(p, ...rest)),
+    statSync: (p, ...rest) => (p.endsWith('song.mp3') ? { isFile: () => true } : realFs.statSync(p, ...rest)),
+    existsSync: (p) => (p.endsWith('song.mp3') ? true : realFs.existsSync(p)),
+    createReadStream: (p) => realFs.createReadStream ? realFs.createReadStream(p) : {},
+  }));
+
   const play = require('../../../src/commands/utility/play');
   const options = { getString: () => 'song.mp3' };
   const interaction = { options, reply: jest.fn().mockResolvedValue(undefined), member: { voice: {} } };
@@ -16,6 +30,16 @@ test('play.execute requires user to be in voice channel', async () => {
 });
 
 test('play.execute replies when file does not exist', async () => {
+  const path = require('path');
+  const realFs = jest.requireActual('node:fs');
+  jest.doMock('node:fs', () => ({
+    ...realFs,
+    readdirSync: (p, ...rest) => (p.includes(path.join('src', 'assets', 'audio')) ? ['song.mp3'] : realFs.readdirSync(p, ...rest)),
+    statSync: (p, ...rest) => (p.endsWith('song.mp3') ? { isFile: () => true } : realFs.statSync(p, ...rest)),
+    existsSync: (p) => (p.endsWith('song.mp3') ? true : realFs.existsSync(p)),
+    createReadStream: (p) => ({}),
+  }));
+
   const play = require('../../../src/commands/utility/play');
   const options = { getString: () => 'missing.mp3' };
   const interaction = {
@@ -24,7 +48,7 @@ test('play.execute replies when file does not exist', async () => {
     member: { voice: { channel: { id: '1', name: 'VC', guild: { id: 'g1', voiceAdapterCreator: {} } } } },
   };
 
-  jest.spyOn(fs, 'existsSync').mockReturnValue(false);
+  jest.spyOn(realFs, 'existsSync').mockReturnValue(false);
 
   await play.execute(interaction);
 
@@ -53,10 +77,17 @@ test('play.execute plays and cleans up on player error', async () => {
   const createAudioResource = jest.fn(() => ({ resource: true }));
   const AudioPlayerStatus = { Idle: 'idle' };
 
-  jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
+  const path = require('path');
+  const realFs = jest.requireActual('node:fs');
+  jest.doMock('node:fs', () => ({
+    ...realFs,
+    readdirSync: (p, ...rest) => (p.includes(path.join('src', 'assets', 'audio')) ? ['song.mp3'] : realFs.readdirSync(p, ...rest)),
+    statSync: (p, ...rest) => (p.endsWith('song.mp3') ? { isFile: () => true } : realFs.statSync(p, ...rest)),
+    existsSync: (p) => (p.endsWith('song.mp3') ? true : realFs.existsSync(p)),
+    createReadStream: (p) => ({}),
+  }));
 
-  jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-  jest.spyOn(fs, 'createReadStream').mockReturnValue({});
+  jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
   const play = require('../../../src/commands/utility/play');
 
@@ -100,9 +131,17 @@ test('play.execute cleans up on idle', async () => {
   const AudioPlayerStatus = { Idle: 'idle' };
 
   jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
+  const path = require('path');
+  const realFs = jest.requireActual('node:fs');
+  jest.doMock('node:fs', () => ({
+    ...realFs,
+    readdirSync: (p, ...rest) => (p.includes(path.join('src', 'assets', 'audio')) ? ['song.mp3'] : realFs.readdirSync(p, ...rest)),
+    statSync: (p, ...rest) => (p.endsWith('song.mp3') ? { isFile: () => true } : realFs.statSync(p, ...rest)),
+    existsSync: (p) => (p.endsWith('song.mp3') ? true : realFs.existsSync(p)),
+    createReadStream: (p) => ({}),
+  }));
 
-  jest.spyOn(fs, 'existsSync').mockReturnValue(true);
-  jest.spyOn(fs, 'createReadStream').mockReturnValue({});
+  jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
   const play = require('../../../src/commands/utility/play');
 
