@@ -3,6 +3,4 @@ node_modules/
 interaction.yml
 .vscode/
 .sonarlint/
-coverage/lcov-report/
-coverage/clover.xml
-coverage/coverage-final.json
+coverage/
