@@ -27,7 +27,7 @@ jobs:
         path: coverage/
 
   sonarcloud:
-    needs: test
+    # needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL_SC }}
 
   sonarqube:
-    needs: test
+    # needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
