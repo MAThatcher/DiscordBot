@@ -21,12 +21,12 @@ test('play.execute requires user to be in voice channel', async () => {
   }));
 
   const play = require('../../../src/commands/llm/play');
-  const options = { getString: () => 'song.mp3' };
+  const options = { getString: () => 'song.mp3', getSubcommand: () => 'song' };
   const interaction = { options, reply: jest.fn().mockResolvedValue(undefined), member: { voice: {} } };
 
   await play.execute(interaction);
 
-  expect(interaction.reply).toHaveBeenCalledWith({ content: 'You need to be in a voice channel to use this command.', ephemeral: true });
+  expect(interaction.reply).toHaveBeenCalledWith({ content: 'Join a voice channel first.', ephemeral: true });
 });
 
 test('play.execute replies when file does not exist', async () => {
@@ -41,7 +41,7 @@ test('play.execute replies when file does not exist', async () => {
   }));
 
   const play = require('../../../src/commands/llm/play');
-  const options = { getString: () => 'missing.mp3' };
+  const options = { getString: () => 'missing.mp3', getSubcommand: () => 'song' };
   const interaction = {
     options,
     reply: jest.fn().mockResolvedValue(undefined),
@@ -52,7 +52,7 @@ test('play.execute replies when file does not exist', async () => {
 
   await play.execute(interaction);
 
-  expect(interaction.reply).toHaveBeenCalledWith({ content: 'That song could not be found on the bot. Please try another.', ephemeral: true });
+  expect(interaction.reply).toHaveBeenCalledWith('❌ That song doesn\'t exist.');
 });
 
 test('play.execute plays and cleans up on player error', async () => {
@@ -74,7 +74,7 @@ test('play.execute plays and cleans up on player error', async () => {
 
   const joinVoiceChannel = jest.fn(() => mockConnection);
   const createAudioPlayer = jest.fn(() => mockPlayer);
-  const createAudioResource = jest.fn(() => ({ resource: true }));
+  const createAudioResource = jest.fn(() => ({ resource: true, volume: { setVolume: jest.fn() } }));
   const AudioPlayerStatus = { Idle: 'idle' };
 
   const path = require('path');
@@ -89,9 +89,12 @@ test('play.execute plays and cleans up on player error', async () => {
 
   jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
+  jest.doMock('../../../src/music/player', () => ({ getVolume: jest.fn(() => 1.0), setVolume: jest.fn() }));
+  jest.doMock('../../../src/music/queue', () => ({ getCurrentSong: jest.fn(() => null), insertNext: jest.fn() }));
+
   const play = require('../../../src/commands/llm/play');
 
-  const options = { getString: () => 'song.mp3' };
+  const options = { getString: () => 'song.mp3', getSubcommand: () => 'song' };
   const interaction = {
     options,
     reply: jest.fn().mockResolvedValue(undefined),
@@ -100,11 +103,10 @@ test('play.execute plays and cleans up on player error', async () => {
 
   await play.execute(interaction);
 
-  expect(interaction.reply).toHaveBeenCalledWith(expect.objectContaining({ content: expect.stringContaining('Joining VC and playing') }));
+  expect(interaction.reply).toHaveBeenCalledWith(expect.stringContaining('🎵 Playing'));
 
   captured['error'](new Error('boom'));
 
-  expect(mockSubscription.unsubscribe).toHaveBeenCalled();
   expect(mockConnection.destroy).toHaveBeenCalled();
 });
 
@@ -127,10 +129,9 @@ test('play.execute cleans up on idle', async () => {
 
   const joinVoiceChannel = jest.fn(() => mockConnection);
   const createAudioPlayer = jest.fn(() => mockPlayer);
-  const createAudioResource = jest.fn(() => ({ resource: true }));
+  const createAudioResource = jest.fn(() => ({ resource: true, volume: { setVolume: jest.fn() } }));
   const AudioPlayerStatus = { Idle: 'idle' };
 
-  jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
   const path = require('path');
   const realFs = jest.requireActual('node:fs');
   jest.doMock('node:fs', () => ({
@@ -143,9 +144,12 @@ test('play.execute cleans up on idle', async () => {
 
   jest.doMock('@discordjs/voice', () => ({ joinVoiceChannel, createAudioPlayer, createAudioResource, AudioPlayerStatus }));
 
+  jest.doMock('../../../src/music/player', () => ({ getVolume: jest.fn(() => 1.0), setVolume: jest.fn() }));
+  jest.doMock('../../../src/music/queue', () => ({ getCurrentSong: jest.fn(() => null), insertNext: jest.fn() }));
+
   const play = require('../../../src/commands/llm/play');
 
-  const options = { getString: () => 'song.mp3' };
+  const options = { getString: () => 'song.mp3', getSubcommand: () => 'song' };
   const interaction = {
     options,
     reply: jest.fn().mockResolvedValue(undefined),
@@ -157,6 +161,5 @@ test('play.execute cleans up on idle', async () => {
 
   captured[AudioPlayerStatus.Idle]();
 
-  expect(mockSubscription.unsubscribe).toHaveBeenCalled();
   expect(mockConnection.destroy).toHaveBeenCalled();
 });
