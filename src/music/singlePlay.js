@@ -59,6 +59,7 @@ async function playSingleSong(interaction, voiceChannel) {
     console.error("Single play error:", err);
     connection.destroy();
   });
+  return;
 }
 
 module.exports = {

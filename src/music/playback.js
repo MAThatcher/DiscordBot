@@ -26,10 +26,13 @@ const {
   shuffle
 } = require("./util");
 const { MessageFlags } = require("discord.js");
+const notPlaying = "Nothing is playing.";
 
 function playNext() {
   const next = rotateToNext();
-  if (!next) return;
+  if (!next) {
+    return;
+  }
 
   const filePath = path.join(musicDir, next);
   const resource = createAudioResource(fs.createReadStream(filePath), {
@@ -58,17 +61,19 @@ async function startShuffle(interaction, voiceChannel) {
   if (player.state.status !== "playing") {
     playNext();
   }
+  return;
 }
 
 function skip(interaction) {
   const player = initPlayer(playNext);
 
   if (!getCurrentSong()) {
-    return interaction.reply("Nothing is playing.");
+    return interaction.reply(notPlaying);
   }
 
   interaction.reply("⏭ Skipping...");
   player.stop();
+  return;
 }
 
 function stop(interaction) {
@@ -85,11 +90,12 @@ function pause(interaction) {
   const player = initPlayer(playNext);
 
   if (player.state.status !== "playing") {
-    return interaction.reply("Nothing is playing.");
+    return interaction.reply(notPlaying);
   }
 
   player.pause();
   interaction.reply("⏸ Paused.");
+  return;
 }
 
 function resume(interaction) {
@@ -101,17 +107,23 @@ function resume(interaction) {
 
   player.unpause();
   interaction.reply("▶ Resumed.");
+  return;
 }
 
 function nowPlaying(interaction) {
   const song = getCurrentSong();
-  if (!song) return interaction.reply("Nothing is playing.");
+  if (!song) {
+    return interaction.reply(notPlaying);
+  }
   interaction.reply(`🎵 Now playing: **${path.parse(song).name}**`);
+  return;
 }
 
 function listSongs(interaction) {
   const files = listMusicFiles();
-  if (!files.length) return interaction.reply("No songs found.");
+  if (!files.length) {
+    return interaction.reply("No songs found.");
+  }
   const message = "Available songs:\n" +
     files.map(f => `• ${path.parse(f).name}`).join("\n");
   interaction.reply({ content: message, flags: MessageFlags.Ephemeral });

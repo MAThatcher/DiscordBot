@@ -12,7 +12,9 @@ let currentResource = null;
 let volumeLevel = 0.75;
 
 function initPlayer(onIdle) {
-  if (player) return player;
+  if (player) {
+    return player;
+  }
 
   player = createAudioPlayer({
     behaviors: { noSubscriber: NoSubscriberBehavior.Pause }
@@ -29,7 +31,9 @@ function initPlayer(onIdle) {
 }
 
 function connectToVoice(voiceChannel) {
-  if (connection) return connection;
+  if (connection) {
+    return connection;
+  }
 
   connection = joinVoiceChannel({
     channelId: voiceChannel.id,
