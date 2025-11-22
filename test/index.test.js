@@ -30,6 +30,7 @@ describe('index.js', () => {
         this.addStringOption = (fn) => { fn(new OptionBuilder()); return this; };
         this.addChannelOption = (fn) => { fn(new OptionBuilder()); return this; };
         this.addBooleanOption = (fn) => { fn(new OptionBuilder()); return this; };
+        this.addIntegerOption = (fn) => { fn(new OptionBuilder()); return this; };
         this.addSubcommand = (fn) => { fn(new SlashCommandBuilder()); return this; };
         this.addUserOption = (fn) => { fn(new OptionBuilder()); return this; };
         this.addChoices = () => this;

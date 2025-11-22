@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/deploy-commands.js & node src/index.js",
     "test": "jest --coverage --detectOpenHandles"
   },
   "keywords": [],
@@ -15,6 +15,7 @@
     "@discordjs/opus": "^0.10.0",
     "@discordjs/voice": "^0.19.0",
     "@snazzah/davey": "^0.1.7",
+    "child_process": "^1.0.2",
     "discord.js": "^14.24.2",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

@@ -1,93 +1,80 @@
-// This file demonstrates a command that plays audio files from the bot's assets folder in a voice channel.
-// Can be used with the LLM once audio files are generated and placed in the assets folder.
-const fs = require('node:fs');
-const path = require('node:path');
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder } = require("discord.js");
+const { listMusicFiles } = require("../../music/util");
+
 const {
-  joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource,
-  AudioPlayerStatus,
-} = require('@discordjs/voice');
+  startShuffle,
+  skip,
+  stop,
+  pause,
+  resume,
+  nowPlaying,
+  listSongs,
+  updateVolume
+} = require("../../music/playback");
 
-const musicDir = path.join(__dirname, '..', '..', 'assets', 'audio');
-
-function listMusicFiles() {
-  try {
-    const files = fs.readdirSync(musicDir).filter((f) => {
-      const full = path.join(musicDir, f);
-      const stat = fs.statSync(full);
-      return stat.isFile();
-    });
-    return files;
-  } catch (err) {
-    console.log('Error reading music directory:', err);
-    return [];
-  }
-}
-
-const files = listMusicFiles();
-
-const builder = new SlashCommandBuilder()
-  .setName('play')
-  .setDescription('Join your voice channel and play a song from the bot assets')
-  .addStringOption((option) => {
-    option.setName('song').setDescription('Which song to play').setRequired(true);
-    for (const f of files.slice(0, 25)) {
-      const name = path.parse(f).name;
-      option.addChoices({ name, value: f });
-    }
-    return option;
-  });
+const {
+  playSingleSong
+} = require("../../music/singlePlay");
 
 module.exports = {
-  data: builder,
+  data: new SlashCommandBuilder()
+    .setName("play")
+    .setDescription("Music playback controls")
+
+    .addSubcommand(c => c.setName("start").setDescription("Start shuffle playback"))
+    .addSubcommand(c => c.setName("skip").setDescription("Skip current song"))
+    .addSubcommand(c => c.setName("stop").setDescription("Stop and disconnect"))
+    .addSubcommand(c => c.setName("pause").setDescription("Pause playback"))
+    .addSubcommand(c => c.setName("resume").setDescription("Resume playback"))
+    .addSubcommand(c => c.setName("now").setDescription("Show currently playing"))
+    .addSubcommand(c => c.setName("list").setDescription("List all available songs"))
+    .addSubcommand(c =>
+      c
+        .setName("volume")
+        .setDescription("Set volume 0–100")
+        .addIntegerOption(o =>
+          o.setName("amount").setDescription("Volume %").setRequired(true)
+        )
+    )
+    .addSubcommand(c =>
+      c
+        .setName("song")
+        .setDescription("Play a specific song")
+        .addStringOption(option => {
+          const files = listMusicFiles();
+          option
+            .setName("name")
+            .setDescription("Pick a song")
+            .setRequired(true);
+
+          for (const file of files) {
+            const name = require("path").parse(file).name;
+            option.addChoices({ name, value: file });
+          }
+
+          return option;
+        })
+    ),
+
   async execute(interaction) {
-    const songFile = interaction.options.getString('song');
+    const sub = interaction.options.getSubcommand();
+    const channel = interaction.member.voice.channel;
 
-    const member = interaction.member;
-    const voiceChannel = member?.voice?.channel;
-    if (!voiceChannel) {
-      return interaction.reply({ content: 'You need to be in a voice channel to use this command.', ephemeral: true });
+    if (!channel) {
+      return interaction.reply({ content: "Join a voice channel first.", ephemeral: true });
     }
 
-    const filePath = path.join(musicDir, songFile);
-    if (!fs.existsSync(filePath)) {
-      return interaction.reply({ content: 'That song could not be found on the bot. Please try another.', ephemeral: true });
+    switch (sub) {
+      case "start": return startShuffle(interaction, channel);
+      case "skip": return skip(interaction);
+      case "stop": return stop(interaction);
+      case "pause": return pause(interaction);
+      case "resume": return resume(interaction);
+      case "now": return nowPlaying(interaction);
+      case "list": return listSongs(interaction);
+      case "volume": return updateVolume(interaction);
+      case "song": return playSingleSong(interaction, channel);
+      default: return interaction.reply("Unknown command.");
     }
-
-    await interaction.reply({ content: `Joining ${voiceChannel.name} and playing **${path.parse(songFile).name}**` });
-
-    const connection = joinVoiceChannel({
-      channelId: voiceChannel.id,
-      guildId: voiceChannel.guild.id,
-      adapterCreator: voiceChannel.guild.voiceAdapterCreator,
-    });
-
-    const player = createAudioPlayer();
-
-    const resource = createAudioResource(fs.createReadStream(filePath));
-    player.play(resource);
-
-    const subscription = connection.subscribe(player);
-
-    player.on('error', (err) => {
-      console.error('Audio player error:', err);
-      try {
-        if (subscription) subscription.unsubscribe();
-        connection.destroy();
-      } catch (e) {
-        console.log(e);
-      }
-    });
-
-    player.on(AudioPlayerStatus.Idle, () => {
-      try {
-        if (subscription) subscription.unsubscribe();
-        connection.destroy();
-      } catch (e) {
-        console.log(e);
-      }
-    });
-  },
+  }
 };
