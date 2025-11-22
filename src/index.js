@@ -4,7 +4,14 @@ const { Client, Collection, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 const token = process.env.DISCORD_BOT_TOKEN;
 
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildVoiceStates] });
+const client = new Client({ 
+    intents: [
+        GatewayIntentBits.Guilds, 
+        GatewayIntentBits.GuildVoiceStates,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ] 
+});
 
 client.commands = new Collection();
 client.cooldowns = new Collection();
