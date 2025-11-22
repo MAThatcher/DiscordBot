@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require('discord.js');
 const { spawn } = require('child_process');
 const path = require('path');
+const conversationManager = require('../../utils/conversationManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,7 +10,11 @@ module.exports = {
         .addStringOption(option =>
             option.setName('prompt')
                 .setDescription('The question you want to ask')
-                .setRequired(true)),
+                .setRequired(true))
+        .addBooleanOption(option =>
+            option.setName('clear')
+                .setDescription('Clear conversation history for this thread')
+                .setRequired(false)),
     //.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         if (interaction.member.roles.cache.some(role => role.name === 'Vibe Prompter')) {
@@ -17,12 +22,29 @@ module.exports = {
             await interaction.deferReply();
 
             const prompt = interaction.options.getString('prompt');
-            // Path to your python script
-            const scriptPath = path.join(__dirname, '../../../../demo/ollama_cli.py');
+            const clearHistory = interaction.options.getBoolean('clear') || false;
 
-            // 2. Spawn the Python process
-            // Note: Use 'python3' on Linux, 'python' on Windows
-            const pythonProcess = spawn('python3', [scriptPath, prompt]);
+            // Determine thread ID (use channel ID if already in thread, otherwise will be set after thread creation)
+            let threadId = interaction.channel.isThread() ? interaction.channelId : null;
+
+            // Handle clear history option
+            if (clearHistory && threadId) {
+                conversationManager.clearHistory(threadId);
+                await interaction.editReply('✅ Conversation history cleared. Now processing your question...');
+            }
+
+            // Path to your python script
+            const scriptPath = path.join(__dirname, '../../../../demo/ollama_cli_copy.py');
+
+            // Get conversation history for this thread
+            let history = threadId ? conversationManager.getHistory(threadId) : [];
+
+            // 2. Spawn the Python process with history
+            const pythonProcess = spawn('python3', [
+                scriptPath,
+                prompt,
+                JSON.stringify(history)
+            ]);
             let outputData = '';
             let errorData = '';
 
@@ -50,17 +72,25 @@ module.exports = {
 
                 // Determine where to send the AI response
                 let targetChannel;
-                
+
                 if (interaction.channel.isThread()) {
                     // If already in a thread, use the same thread
                     targetChannel = interaction.channel;
+                    threadId = interaction.channelId;
                 } else {
                     // Create a thread for the AI response
                     targetChannel = await reply.startThread({
                         name: `AI Response: ${prompt.substring(0, 80)}${prompt.length > 80 ? '...' : ''}`,
                         autoArchiveDuration: 60, // Archive after 1 hour of inactivity
                     });
+                    threadId = targetChannel.id;
                 }
+
+                // Update conversation history
+                conversationManager.addMessages(threadId, [
+                    { role: 'user', content: prompt },
+                    { role: 'assistant', content: outputData }
+                ]);
 
                 // Send the AI output in the thread
                 const maxLength = 2000;
@@ -80,7 +110,7 @@ module.exports = {
                 }
             });
         } else {
-            return interaction.reply({ content: 'You do not have permission to use this command. You need the Vibe Prompter Role', ephemeral: true });
+            return interaction.reply({ content: 'You do not have permission to use this command. You need the Vibe Prompter Role', flags: MessageFlags.Ephemeral });
         }
     },
 };
